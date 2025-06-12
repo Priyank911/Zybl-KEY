@@ -1,13 +1,20 @@
 /* About Section Styles */
 .about-section {
   padding: 100px 0;
-  background-color: #0a0a0a;
+  background-color: #000000;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .about-container {
-  max-width: 1200px;
+  max-width: 1280px; /* Ample width for content */
   margin: 0 auto;
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .about-header {
@@ -34,21 +41,85 @@
   display: flex;
   flex-direction: column;
   gap: 80px;
+  align-items: center; /* Center content horizontally */
+  width: 100%;
+  max-width: 100%; /* Ensure content doesn't overflow container */
 }
 
-/* Grid Cards */
+/* Center fix for grid */
+.about-grid-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .about-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Use fixed 3 columns with consistent sizes */
   gap: 30px;
+  width: 100%;
+  max-width: 1200px; /* Control maximum width */
+  margin: 0 auto;
+  justify-content: center;
+}
+
+/* Fixed width for grid columns to ensure even spacing */
+@media (min-width: 1200px) {
+  .about-grid {
+    grid-template-columns: repeat(3, 340px); /* Fixed width for perfect alignment */
+    justify-content: center; /* Center the fixed-width columns */
+  }
+  
+  .about-features {
+    grid-template-columns: repeat(3, 340px); /* Match the about-grid column width */
+    justify-content: center;
+  }
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1200px) {
+  .about-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 992px) {
+  .about-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 350px;
+  }
 }
 
 .about-card {
   background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 30px;
+  border-radius: 14px; /* Slightly rounded corners */
+  padding: 30px; /* Generous padding */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%; /* Ensure all cards have the same height */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box; /* Include padding in width calculation */
+  width: 100%; /* Ensure cards fill their grid space */
 }
 
 .about-card:hover {
@@ -60,33 +131,40 @@
 
 .card-icon {
   background-color: rgba(255, 255, 255, 0.1);
-  width: 50px;
-  height: 50px;
+  width: 56px; /* Increased size */
+  height: 56px; /* Increased size */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 22px; /* Increased spacing */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Added subtle border */
 }
 
 .about-card h3 {
-  font-size: 1.3rem;
+  font-size: 1.35rem; /* Increased font size */
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: 16px; /* Increased margin for better spacing */
   color: #ffffff;
 }
 
 .about-card p {
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
+  line-height: 1.6; /* Increased line height for better readability */
+  font-size: 1rem; /* Restored normal font size */
+  margin-top: 0; /* Remove default top margin */
 }
 
 /* Features List */
 .about-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Match the grid structure of cards */
   gap: 30px;
   margin-top: 20px;
+  width: 100%;
+  max-width: 1200px; /* Match the about-grid max-width */
+  justify-content: center; /* Center the grid */
+  align-items: stretch; /* Make all items the same height */
 }
 
 .feature {
@@ -235,9 +313,7 @@
     font-size: 2rem;
   }
   
-  .about-grid, .about-features {
-    grid-template-columns: 1fr;
-  }
+  /* Grid styles are handled by the specific media queries above */
   
   .about-quote blockquote {
     font-size: 1.2rem;
@@ -251,6 +327,11 @@
     width: 60px;
     height: 30px;
   }
+  
+  .about-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 650px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -263,6 +344,11 @@
   }
   
   .about-card, .feature {
-    padding: 20px;
+    padding: 25px;
+  }
+  
+  .about-features {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 350px;
   }
 }

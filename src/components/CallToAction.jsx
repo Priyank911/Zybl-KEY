@@ -2,10 +2,9 @@ import React from 'react';
 import '../styles/CallToAction.css';
 
 const CallToAction = () => {
-  return (
-    <section className="cta-section">
+  return (    <section className="cta-section animate-section">
       <div className="cta-container">
-        <div className="cta-content">
+        <div className="cta-content animate-item">
           <h2 className="cta-title">Ready to Secure Your Web3 Project?</h2>
           <p className="cta-description">
             Join the growing network of blockchain projects using Zybl for Sybil-resistance and
@@ -17,7 +16,7 @@ const CallToAction = () => {
           </div>
         </div>
         
-        <div className="cta-graphic">
+        <div className="cta-graphic animate-item">
           <svg width="280" height="280" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5"/>
             <circle cx="12" cy="12" r="6" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5"/>

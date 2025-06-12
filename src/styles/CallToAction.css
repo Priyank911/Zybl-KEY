@@ -1,8 +1,10 @@
 .cta-section {
-  padding: 100px 0;
-  background-color: #0a0a0a;
+  padding: 80px 0;
   position: relative;
   overflow: hidden;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 60px;
 }
 
 .cta-section::before {

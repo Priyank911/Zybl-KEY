@@ -1,9 +1,9 @@
 .scroll-to-top {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 40px;
-  height: 40px;
+  bottom: 24px; /* Adjusted to work with more compact footer */
+  right: 24px;
+  width: 38px; /* Slightly smaller button */
+  height: 38px; /* Slightly smaller button */
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
@@ -31,7 +31,9 @@
 
 @media (max-width: 768px) {
   .scroll-to-top {
-    bottom: 20px;
-    right: 20px;
+    bottom: 16px; /* Adjusted for mobile */
+    right: 16px;
+    width: 36px; /* Smaller on mobile */
+    height: 36px; /* Smaller on mobile */
   }
 }

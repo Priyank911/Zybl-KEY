@@ -8,8 +8,8 @@ import CallToAction from './components/CallToAction';
 import HeroAnimation from './components/HeroAnimation';
 import ScrollToTop from './components/ScrollToTop';
 import Features from './components/Features';
-import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
+import { initSmoothScrolling, initScrollAnimations } from './utils/scrollUtils';
 
 // Wallet icon for the button
 const WalletIcon = () => (
@@ -36,7 +36,7 @@ function App() {
     }
   };
 
-  // Add scroll event listener to handle navbar appearance
+  // Add scroll event listener to handle navbar appearance and animations
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 80) {
@@ -46,84 +46,84 @@ function App() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    
+    // Initialize smooth scrolling and animations
+    initSmoothScrolling();
+    initScrollAnimations();
+    
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <div className="main-container">
       {/* Navbar */}
-      <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${isMenuOpen ? 'menu-open' : ''}`}>
+      <nav className={`navbar ${isScrolled ? "scrolled" : ""} ${isMenuOpen ? "menu-open" : ""}`}>
         <div className="navbar-logo">
           <img src={Logo} alt="Zybl Logo" className="nav-logo" />
           <span className="nav-brand">Zybl</span>
         </div>
-        <div className={`navbar-links ${isMenuOpen ? 'active' : ''}`}>
+        <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
           <a href="#features" className="nav-link" onClick={handleLinkClick}>Features</a>
           <a href="#about" className="nav-link" onClick={handleLinkClick}>About</a>
-          <a href="#testimonials" className="nav-link" onClick={handleLinkClick}>Testimonials</a>
           <a href="#faq" className="nav-link" onClick={handleLinkClick}>FAQ</a>
-          <a href="#blog" className="nav-link" onClick={handleLinkClick}>Blog</a>
           <button className="connect-button">
             <WalletIcon />
             Connect Wallet
           </button>
         </div>
-        <button className={`mobile-menu-btn ${isMenuOpen ? 'active' : ''}`} onClick={toggleMenu}>
+        <button className={`mobile-menu-btn ${isMenuOpen ? "active" : ""}`} onClick={toggleMenu}>
           <span className="menu-icon"></span>
         </button>
       </nav>
 
-
-      {/* Main Content */}
-      <div className="hero-section">
-        <HeroAnimation />
-        <div className="hero-content">
-          <h1 className="hero-title">End-to-End Security<br />for Blockchain Applications</h1>
-          
-          <p className="hero-description">
-            Zybl is the next-gen Sybil-resistance layer for Web3.
-            <br />Monitor, audit, and secure your processes with 
-            intelligent analysis, real-time alerts, and comprehensive reporting—so you
-            always stay protected.
-          </p>
-          
-          <div className="hero-buttons">
-            <button className="primary-button">
-              <img src={logoblack} alt="Zybl Logo" className="button-logo" />
-              Sign in to Zybl
-            </button>
-            <a href="#about" className="secondary-button">
-              About
+      <div className="content-container">
+        {/* Hero Section */}
+        <div className="hero-section animate-section">
+          <HeroAnimation />
+          <div className="hero-content">
+            <h1 className="hero-title animate-item">End-to-End Security<br />for Blockchain Applications</h1>
+            
+            <p className="hero-description animate-item">
+              Zybl is the next-gen Sybil-resistance layer for Web3.
+              <br />
+              <b>Real people. Real proofs. Real revenue</b>
+            </p>
+            
+            <div className="hero-buttons animate-item">
+              <button className="primary-button">
+                <img src={logoblack} alt="Zybl Logo" className="button-logo" />
+                Sign in to Zybl
+              </button>
+              <a href="#about" className="secondary-button">
+                About
+              </a>
+            </div>
+            
+            <a href="#learn-more" className="learn-more-link animate-item" style={{ animationDelay: "0.4s" }}>
+              Learn More
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </a>
           </div>
-          
-          <a href="#learn-more" className="learn-more-link">
-            Learn More
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </a>
         </div>
+
+        {/* Features Section */}
+        <Features />
+
+        {/* Enhanced About Section Component */}
+        <About />
+
+        {/* FAQ Section */}
+        <FAQ />
+
+        {/* Call to Action Section */}
+        <CallToAction />
       </div>
-
-      {/* Features Section */}
-      <Features />
-
-      {/* Enhanced About Section Component */}
-      <About />
-
-      {/* Testimonials Section */}
-      <Testimonials />
-
-      {/* FAQ Section */}
-      <FAQ />
-
-      {/* Call to Action Section */}
-      <CallToAction />
-
-      {/* Footer Component */}
+      
+      {/* Footer Component - ensure it's outside the content container but inside main container */}
       <Footer />
       
       {/* Scroll to Top Button */}

@@ -41,21 +41,20 @@ const FAQ = () => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
-  return (
-    <section className="faq-section" id="faq">
+  return (    <section className="faq-section animate-section" id="faq">
       <div className="faq-container">
         <div className="faq-header">
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <p className="faq-subtitle">
             Find answers to common questions about Zybl's Sybil-resistance solutions
-          </p>
-        </div>
+          </p>        </div>
 
         <div className="faq-accordion">
           {faqItems.map((item, index) => (
             <div 
               key={item.id} 
-              className={`faq-item ${activeIndex === index ? 'active' : ''}`}
+              className={`faq-item animate-item ${activeIndex === index ? 'active' : ''}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               <button 
                 className="faq-question"
@@ -74,13 +73,12 @@ const FAQ = () => {
                 <p>{item.answer}</p>
               </div>
             </div>
-          ))}
-        </div>
+          ))}        </div>
 
-        <div className="faq-more">
+        {/* <div className="faq-more animate-item" style={{ animationDelay: '0.6s' }}>
           <p>Have more questions? We're here to help.</p>
           <a href="/contact" className="faq-contact-button">Contact Us</a>
-        </div>
+        </div> */}
       </div>
     </section>
   );

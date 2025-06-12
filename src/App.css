@@ -3,6 +3,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-padding-top: 100px; /* Add space for fixed navbar */
 }
 
 :root {
@@ -32,9 +37,21 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  justify-content: space-between; /* Ensure footer is pushed to bottom */
+}
+
+.content-container {
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 24px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh; /* Ensure content takes up space */
 }
 
 /* Navbar Styles */
@@ -42,19 +59,27 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 15px 30px;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 1400px;
+  border-radius: 50px;
+  background-color: rgba(15, 15, 15, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  transition: background-color 0.3s ease, padding 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .navbar.scrolled {
-  background-color: var(--navbar-bg);
-  padding: 15px 40px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  top: 15px;
+  background-color: rgba(15, 15, 15, 0.95);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-logo {
@@ -99,7 +124,7 @@ body {
   color: #000000;
   border: none;
   padding: 10px 24px;
-  border-radius: 12px;
+  border-radius: 50px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -107,11 +132,13 @@ body {
   align-items: center;
   gap: 8px;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .connect-button:hover {
   background-color: #f0f0f0;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .mobile-menu-btn {
@@ -152,12 +179,12 @@ body {
 /* Hero Section */
 .hero-section {
   position: relative;
-  min-height: 90vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--background-color);
-  padding: 60px 20px;
+  padding: 100px 20px 60px;
   overflow: hidden;
   z-index: 1;
 }
@@ -200,7 +227,7 @@ body {
   color: #000000;
   border: none;
   padding: 16px 32px;
-  border-radius: 12px;
+  border-radius: 50px;
   font-size: 17px;
   font-weight: 500;
   cursor: pointer;
@@ -209,11 +236,13 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .primary-button:hover {
   background-color: #f0f0f0;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
 }
 
 .button-logo {
@@ -411,37 +440,45 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  width: 30px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   position: relative;
   z-index: 1000;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .menu-icon {
   display: block;
-  width: 30px;
+  width: 24px;
   height: 2px;
   background-color: #ffffff;
   position: relative;
   transition: background-color 0.3s ease;
+  margin: 0 auto;
 }
 
 .menu-icon::before,
 .menu-icon::after {
   content: '';
   position: absolute;
-  width: 30px;
+  width: 24px;
   height: 2px;
   background-color: #ffffff;
   transition: transform 0.3s ease;
+  left: 0;
 }
 
 .menu-icon::before {
-  top: -8px;
+  top: -7px;
 }
 
 .menu-icon::after {
-  bottom: -8px;
+  bottom: -7px;
 }
 
 .mobile-menu-btn.active .menu-icon {
@@ -462,20 +499,22 @@ body {
   }
   
   .navbar-links {
-    position: fixed;
-    top: 70px;
+    position: absolute;
+    top: calc(100% + 10px);
     left: 0;
     right: 0;
-    background-color: var(--navbar-bg);
+    background-color: rgba(15, 15, 15, 0.95);
+    border-radius: 20px;
     padding: 20px;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     visibility: hidden;
     opacity: 0;
-    transform: translateY(-20px);
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
   
@@ -487,5 +526,43 @@ body {
     width: 100%;
     max-width: 200px;
     margin-top: 10px;
+  }
+}
+
+/* Section Animation Classes */
+.animate-section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.animate-section.animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered animation for child elements */
+.animate-section.animated .animate-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-section.animated .animate-item:nth-child(1) { animation-delay: 0.1s; }
+.animate-section.animated .animate-item:nth-child(2) { animation-delay: 0.2s; }
+.animate-section.animated .animate-item:nth-child(3) { animation-delay: 0.3s; }
+.animate-section.animated .animate-item:nth-child(4) { animation-delay: 0.4s; }
+.animate-section.animated .animate-item:nth-child(5) { animation-delay: 0.5s; }
+.animate-section.animated .animate-item:nth-child(6) { animation-delay: 0.6s; }
+
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
