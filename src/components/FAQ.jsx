@@ -4,33 +4,33 @@ import '../styles/FAQ.css';
 const faqItems = [
   {
     id: 1,
-    question: "What is Sybil resistance, and why is it important for Web3?",
-    answer: "Sybil resistance refers to a system's ability to prevent Sybil attacks, where a single entity creates multiple fake identities to gain disproportionate influence. In Web3, this is crucial for maintaining fair governance, preventing voting manipulation, and ensuring equitable distribution of resources. Zybl provides advanced Sybil resistance to protect the integrity of decentralized platforms."
+    question: "What is PoPaaS and how does it work?",
+    answer: "PoPaaS (Proof of Personhood as a Service) is a cross-chain identity infrastructure that verifies real human users through biometric AI verification, behavioral analysis, and on-chain wallet analysis. It assigns each user a dynamic Sybil Score (0-100) and provides non-transferable identity credentials that can be reused across dApps."
   },
   {
     id: 2,
-    question: "How does Zybl's solution work without compromising privacy?",
-    answer: "Zybl uses a combination of zero-knowledge proofs, on-chain analysis, and behavioral patterns to verify unique human identities without requiring sensitive personal information. Our approach preserves privacy by design, allowing users to prove their uniqueness without revealing their actual identity. This maintains the pseudonymous nature of blockchain while preventing Sybil attacks."
+    question: "How does PoPaaS ensure privacy while verifying identity?",
+    answer: "PoPaaS uses privacy-preserving technologies like ZK-DIDs (Zero-Knowledge Decentralized Identifiers) to verify human identity without exposing sensitive information. The system combines biometric verification with behavioral patterns while maintaining user privacy through advanced cryptographic techniques."
   },
   {
     id: 3,
-    question: "Can Zybl integrate with our existing blockchain infrastructure?",
-    answer: "Yes, Zybl is designed to be blockchain-agnostic and can seamlessly integrate with existing infrastructure across various protocols including Ethereum, Solana, Polkadot, and others. Our solution provides flexible APIs and SDKs that make integration straightforward with minimal changes to your existing codebase."
+    question: "Which blockchains does PoPaaS support?",
+    answer: "PoPaaS is chain-agnostic and currently supports Ethereum, Optimism, Base, Solana, and Bitcoin. The platform uses privacy-preserving identifiers to link multiple wallets to a single human identity across different chains, making it truly cross-chain compatible."
   },
   {
     id: 4,
-    question: "What kind of attacks can Zybl prevent?",
-    answer: "Zybl can prevent various types of attacks including Sybil attacks (multiple fake identities), collusion attacks, bot-driven manipulation, and certain forms of MEV exploitation. Our system continuously monitors for suspicious patterns and provides real-time alerts when potential threats are detected."
+    question: "How does the revenue sharing model work?",
+    answer: "PoPaaS uses x402pay for monetization through a pay-per-check model. Revenue is automatically split and disbursed among key contributors including node runners, developers, and protocol treasuries through CDP Wallet integration. This creates a sustainable ecosystem where all participants are incentivized."
   },
   {
     id: 5,
-    question: "Do you offer custom solutions for different types of Web3 projects?",
-    answer: "Absolutely. We understand that different projects have unique requirements, whether you're running a DAO, DeFi protocol, NFT marketplace, or game. Zybl offers customizable solutions tailored to your specific needs, with different tiers of service and features that can be adjusted based on your security requirements and user base."
+    question: "How easy is it to integrate PoPaaS into my dApp?",
+    answer: "Integration is straightforward with our lightweight JS/TS SDK. Developers can implement human verification with a simple verifyHuman(wallet) function, enabling human-gated access within minutes. The SDK handles all the complexity of verification, scoring, and credential management."
   },
   {
     id: 6,
-    question: "How quickly can we implement Zybl for our project?",
-    answer: "Implementation typically takes 1-2 weeks depending on the complexity of your project and the level of customization required. Our team provides comprehensive onboarding support, documentation, and technical assistance throughout the process to ensure a smooth integration. For most standard implementations, you can be up and running within days."
+    question: "What can I use PoPaaS for?",
+    answer: "PoPaaS is ideal for any Web3 application that needs to verify real human users, including airdrops, DAOs, gaming platforms, and reward systems. It helps prevent Sybil attacks while maintaining privacy and can be used to gate access to specific features or rewards based on the user's Sybil Score."
   }
 ];
 
@@ -46,7 +46,7 @@ const FAQ = () => {
         <div className="faq-header">
           <h2 className="faq-title">Frequently Asked Questions</h2>
           <p className="faq-subtitle">
-            Find answers to common questions about Zybl's Sybil-resistance solutions
+            Find answers to common questions about PoPaaS identity verification
           </p>        </div>
 
         <div className="faq-accordion">
@@ -75,10 +75,10 @@ const FAQ = () => {
             </div>
           ))}        </div>
 
-        {/* <div className="faq-more animate-item" style={{ animationDelay: '0.6s' }}>
-          <p>Have more questions? We're here to help.</p>
-          <a href="/contact" className="faq-contact-button">Contact Us</a>
-        </div> */}
+        <div className="faq-more animate-item" style={{ animationDelay: '0.6s' }}>
+          <p>Ready to integrate PoPaaS into your dApp?</p>
+          <a href="/developers" className="faq-contact-button">Get Started</a>
+        </div>
       </div>
     </section>
   );

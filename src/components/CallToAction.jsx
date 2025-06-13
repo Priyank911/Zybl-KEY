@@ -5,14 +5,14 @@ const CallToAction = () => {
   return (    <section className="cta-section animate-section">
       <div className="cta-container">
         <div className="cta-content animate-item">
-          <h2 className="cta-title">Ready to Secure Your Web3 Project?</h2>
+          <h2 className="cta-title">Build Bot-Resistant dApps with PoPaaS</h2>
           <p className="cta-description">
-            Join the growing network of blockchain projects using Zybl for Sybil-resistance and
-            identity verification. Get started today and protect your ecosystem.
+            Join the growing ecosystem of Web3 projects using PoPaaS for human verification and Sybil resistance.
+            Start building truly decentralized, bot-resistant applications today.
           </p>
           <div className="cta-buttons">
-            <a href="/signup" className="cta-button primary">Get Started</a>
-            <a href="/demo" className="cta-button secondary">Schedule a Demo</a>
+            <a href="/developers" className="cta-button primary">Start Building</a>
+            <a href="/docs" className="cta-button secondary">View Documentation</a>
           </div>
         </div>
         

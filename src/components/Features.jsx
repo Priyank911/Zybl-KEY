@@ -5,9 +5,9 @@ const Features = () => {
   return (    <section className="features-section animate-section" id="features">
       <div className="features-container">
         <div className="features-header">
-          <h2 className="features-title">Comprehensive Web3 Security Features</h2>
+          <h2 className="features-title">PoPaaS Core Features</h2>
           <p className="features-subtitle">
-            Zybl provides cutting-edge solutions for Web3 identity verification and Sybil-resistance
+            A comprehensive suite of tools for human verification and Sybil resistance across multiple blockchains
           </p>
         </div>
 
@@ -19,9 +19,9 @@ const Features = () => {
                 <path d="M16.2399 7.76001L14.1199 14.12L7.75991 16.24L9.87991 9.88001L16.2399 7.76001Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Real-time Monitoring</h3>
+            <h3 className="feature-title">Biometric Verification</h3>
             <p className="feature-description">
-              Continuously monitor all blockchain activities for suspicious patterns and potential Sybil attacks
+              AI-powered face and voice recognition combined with behavioral pattern analysis for accurate human verification
             </p>
           </div>
 
@@ -33,9 +33,9 @@ const Features = () => {
                 <path d="M15 12H22" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Advanced Analytics</h3>
+            <h3 className="feature-title">Cross-Chain Support</h3>
             <p className="feature-description">
-              Use AI-powered analysis to detect patterns and identify potential threats before they cause damage
+              Seamless integration with Ethereum, Optimism, Base, Solana, and Bitcoin through privacy-preserving ZK-DIDs
             </p>
           </div>
 
@@ -45,9 +45,9 @@ const Features = () => {
                 <path d="M7 11V7C7 5.93913 7.42143 4.92172 8.17157 4.17157C8.92172 3.42143 9.93913 3 11 3H13C14.0609 3 15.0783 3.42143 15.8284 4.17157C16.5786 4.92172 17 5.93913 17 7V11" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Privacy-Preserving</h3>
+            <h3 className="feature-title">Soulbound NFTs</h3>
             <p className="feature-description">
-              Verify identity without compromising privacy using zero-knowledge proofs and advanced cryptography
+              Non-transferable identity credentials that can be reused across dApps to reduce verification friction
             </p>
           </div>
 
@@ -58,9 +58,9 @@ const Features = () => {
                 <path d="M7.15 18.6426L4.34835 9.33925C4.25626 9.0675 4.24194 8.77552 4.30718 8.49584C4.37242 8.21615 4.51459 7.9605 4.7178 7.75732L8.30064 4.17449C8.7045 3.77062 9.34343 3.77062 9.74729 4.17449L11.8255 6.25272C11.9428 6.37 12.1066 6.43703 12.2771 6.43703C12.4475 6.43703 12.6113 6.37 12.7286 6.25272L14.8068 4.17449C15.2107 3.77062 15.8496 3.77062 16.2535 4.17449L19.8363 7.75732C20.0395 7.9605 20.1817 8.21615 20.2469 8.49584C20.3122 8.77552 20.2978 9.0675 20.2058 9.33925L17.4041 18.6426C17.3039 18.9373 17.1113 19.1935 16.8549 19.3742C16.5985 19.555 16.2914 19.652 15.9762 19.6514H8.57795C8.26279 19.652 7.95566 19.555 7.69926 19.3742C7.44286 19.1935 7.25033 18.9373 7.15 18.6426Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Customizable Solutions</h3>
+            <h3 className="feature-title">Lightweight SDK</h3>
             <p className="feature-description">
-              Tailor security measures to your specific needs with flexible implementation options
+              Easy integration with a simple verifyHuman(wallet) function for quick implementation in any dApp
             </p>
           </div>
 
@@ -71,9 +71,9 @@ const Features = () => {
                 <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Real-Time Alerts</h3>
+            <h3 className="feature-title">Dynamic Scoring</h3>
             <p className="feature-description">
-              Receive instant notifications about potential security threats to your ecosystem
+              Real-time Sybil Score (0-100) that adapts based on user behavior and verification methods
             </p>
           </div>
 
@@ -86,23 +86,22 @@ const Features = () => {
                 <path d="M12 14V14.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Mobile Integration</h3>
+            <h3 className="feature-title">Revenue Sharing</h3>
             <p className="feature-description">
-              Monitor and manage your security settings from anywhere with our mobile app
+              Automated revenue distribution through x402pay and CDP Wallet integration for all ecosystem participants
             </p>
           </div>
         </div>
 
         <div className="features-highlight">
           <div className="highlight-content">
-            <h3>Enterprise-Grade Security</h3>
+            <h3>Build Bot-Resistant Ecosystems</h3>
             <p>
-              Zybl provides enterprise-level security features designed specifically for Web3 projects. 
-              Our comprehensive approach ensures that your platform remains secure against Sybil attacks 
-              while maintaining a seamless user experience.
+              PoPaaS provides the foundation for building truly decentralized, bot-resistant, and revenue-generating ecosystems. 
+              From gaming to governance, our platform ensures real human participation while maintaining privacy and security.
             </p>
-            <a href="/enterprise" className="highlight-link">
-              Learn about Enterprise Solutions
+            <a href="/developers" className="highlight-link">
+              Start Building with PoPaaS
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

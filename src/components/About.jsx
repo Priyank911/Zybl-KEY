@@ -6,7 +6,7 @@ const About = () => {
     <section id="about" className="about-section animate-section">
       <div className="about-container">
         <div className="about-header">
-          <h2 className="about-title">Securing the Future of Web3 Identity</h2>
+          <h2 className="about-title">Proof of Personhood as a Service</h2>
           <div className="title-underline"></div>
         </div>
         
@@ -23,7 +23,7 @@ const About = () => {
                 </div>
                 <h3>Our Mission</h3>
                 <p>
-                  Zybl is building the next generation of Sybil-resistance infrastructure for Web3, with a focus on real human identity verification while preserving privacy.
+                  PoPaaS is building a cross-chain, privacy-first identity infrastructure that enables developers to verify real human users while maintaining privacy and security.
                 </p>
               </div>
 
@@ -36,7 +36,7 @@ const About = () => {
                 </div>
                 <h3>Our Technology</h3>
                 <p>
-                  We combine cutting-edge blockchain technology with advanced cryptographic techniques to create a secure, transparent, and efficient identity verification system.
+                  We combine biometric AI verification, behavioral pattern analysis, and on-chain wallet analysis to create a comprehensive Sybil resistance system with dynamic scoring.
                 </p>
               </div>
 
@@ -49,9 +49,9 @@ const About = () => {
                     <path d="M16 3.12988C16.8604 3.35018 17.623 3.85058 18.1676 4.55219C18.7122 5.2538 19.0078 6.11671 19.0078 7.00488C19.0078 7.89305 18.7122 8.75596 18.1676 9.45757C17.623 10.1592 16.8604 10.6596 16 10.8799" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
-                <h3>Our Community</h3>
+                <h3>Our Ecosystem</h3>
                 <p>
-                  We're backed by a diverse community of developers, users, and partners who believe in the power of decentralized identity solutions to transform Web3.
+                  We provide a lightweight SDK for developers to integrate human verification into their dApps, with built-in monetization through x402pay and CDP Wallet integration.
                 </p>
               </div>
             </div>
@@ -61,18 +61,18 @@ const About = () => {
             <div className="about-features animate-section">
               <div className="feature animate-item">
                 <div className="feature-number">01</div>
-                <h3>Sybil-Resistance</h3>
-                <p>Our platform provides robust protection against Sybil attacks, ensuring the integrity of decentralized systems.</p>
+                <h3>Cross-Chain Identity</h3>
+                <p>Support for multiple blockchains including Ethereum, Optimism, Base, Solana, and Bitcoin through privacy-preserving ZK-DIDs.</p>
               </div>
               <div className="feature animate-item">
                 <div className="feature-number">02</div>
-                <h3>Privacy-Preserving</h3>
-                <p>We implement zero-knowledge proofs and other privacy technologies to verify identities without exposing sensitive information.</p>
+                <h3>Dynamic Scoring</h3>
+                <p>Advanced Sybil Score (0-100) system that combines multiple verification methods to ensure accurate human identification.</p>
               </div>
               <div className="feature animate-item">
                 <div className="feature-number">03</div>
-                <h3>User-Centric</h3>
-                <p>We put users in control of their identity data, allowing them to choose what information to share and with whom.</p>
+                <h3>Revenue Sharing</h3>
+                <p>Automated revenue distribution among node runners, developers, and protocol treasuries through CDP Wallet integration.</p>
               </div>         
             </div>
           </div>
