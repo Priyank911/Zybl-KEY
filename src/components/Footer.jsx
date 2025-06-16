@@ -3,7 +3,7 @@ import '../styles/Footer.css';
 import Logo from '../assets/Logo.png';
 
 const Footer = () => {
-  console.log("Footer component rendering"); // Add debug logging
+ // console.log("Footer component rendering"); // Add debug logging
   return (
     <footer className="footer">
       <div className="footer-container">

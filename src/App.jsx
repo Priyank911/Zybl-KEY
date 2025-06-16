@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import './App.css';
 import Logo from './assets/Logo.png';
 import logoblack from './assets/Zybl-black.png';
@@ -9,6 +10,8 @@ import HeroAnimation from './components/HeroAnimation';
 import ScrollToTop from './components/ScrollToTop';
 import Features from './components/Features';
 import FAQ from './components/FAQ';
+import SignIn from './auth/SignIn';
+import Dashboard from './auth/Dashboard';
 import { initSmoothScrolling, initScrollAnimations } from './utils/scrollUtils';
 
 // Wallet icon for the button
@@ -21,9 +24,33 @@ const WalletIcon = () => (
   </svg>
 );
 
-function App() {
+// Authentication check function
+const isAuthenticated = () => {
+  const userData = localStorage.getItem('zybl_user_data');
+  return !!userData;
+};
+
+// Protected route component that redirects to dashboard if already logged in
+const ProtectedSignInRoute = () => {
+  return isAuthenticated() ? <Navigate to="/dashboard" replace /> : <SignIn />;
+};
+
+// Protected route component that redirects to sign in if not logged in
+const ProtectedDashboardRoute = () => {
+  return isAuthenticated() ? <Dashboard /> : <Navigate to="/signin" replace />;
+};
+
+function HomePage() {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check if user is authenticated on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('zybl_user_data');
+    setIsAuthenticated(!!userData);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,6 +60,15 @@ function App() {
   const handleLinkClick = () => {
     if (isMenuOpen) {
       setIsMenuOpen(false);
+    }
+  };
+
+  // Handle wallet connection or navigate to sign in
+  const handleWalletConnect = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signin');
     }
   };
 
@@ -67,9 +103,9 @@ function App() {
           <a href="#features" className="nav-link" onClick={handleLinkClick}>Features</a>
           <a href="#about" className="nav-link" onClick={handleLinkClick}>About</a>
           <a href="#faq" className="nav-link" onClick={handleLinkClick}>FAQ</a>
-          <button className="connect-button">
+          <button className="connect-button" onClick={handleWalletConnect}>
             <WalletIcon />
-            Connect Wallet
+            {isAuthenticated ? 'Dashboard' : 'Connect Wallet'}
           </button>
         </div>
         <button className={`mobile-menu-btn ${isMenuOpen ? "active" : ""}`} onClick={toggleMenu}>
@@ -91,9 +127,9 @@ function App() {
             </p>
             
             <div className="hero-buttons animate-item">
-              <button className="primary-button">
+              <button className="primary-button" onClick={handleWalletConnect}>
                 <img src={logoblack} alt="Zybl Logo" className="button-logo" />
-                Sign in to Zybl
+                {isAuthenticated ? 'Go to Dashboard' : 'Sign in to Zybl'}
               </button>
               <a href="#about" className="secondary-button">
                 About
@@ -129,6 +165,16 @@ function App() {
       {/* Scroll to Top Button */}
       <ScrollToTop />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/signin" element={<ProtectedSignInRoute />} />
+      <Route path="/dashboard" element={<ProtectedDashboardRoute />} />
+    </Routes>
   );
 }
 
