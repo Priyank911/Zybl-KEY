@@ -41,7 +41,7 @@
   backdrop-filter: blur(5px);
   position: relative;
   overflow: hidden;
-  height: 400px;
+  height: 550px;
 }
 
 @keyframes cardEnter {
@@ -91,7 +91,18 @@
 .signin-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  position: relative;
+  height: 100%;
+}
+
+.wallet-connect-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 300px;
 }
 
 .signin-button {
@@ -314,23 +325,39 @@
 .wallet-option-single {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-radius: 10px;
   background-color: rgba(0, 82, 255, 0.05);
-  margin-bottom: 12px;
+  margin-bottom: 18px;
   border: 1px solid rgba(0, 82, 255, 0.15);
   transition: all 0.3s ease;
   animation: fadeInUp 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.05);
+  backdrop-filter: blur(4px);
+  z-index: 4;
 }
 
 .wallet-option-single.coinbase {
   border-color: rgba(0, 82, 255, 0.2);
-  box-shadow: 0 3px 10px rgba(0, 82, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.08);
+}
+
+.wallet-option-single::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(to bottom, #0052FF, rgba(0, 82, 255, 0.5));
 }
 
 .wallet-option-single svg {
   filter: drop-shadow(0 0 3px rgba(0, 82, 255, 0.3));
   transition: transform 0.3s ease;
+  margin-left: 10px;
 }
 
 .wallet-option-single:hover {
@@ -344,18 +371,21 @@
 }
 
 .wallet-option-details {
-  margin-left: 12px;
+  margin-left: 16px;
 }
 
 .wallet-option-name {
   font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
+  color: white;
+  letter-spacing: 0.2px;
 }
 
 .wallet-option-description {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.1px;
 }
 
 /* QR Code Styles */
@@ -499,58 +529,126 @@
   letter-spacing: 0.3px;
 }
 
-/* Improved Status Indicators */
+/* Legacy status indicators for compatibility - will use notifications instead */
 .status-indicator {
+  display: none; /* Hide the old implementation */
+}
+
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 300px;
+  max-width: 90vw;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-radius: 10px;
   font-size: 0.9rem;
-  animation: fadeIn 0.3s ease-out;
-  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  margin-bottom: 10px;
+  opacity: 0;
+  transform: translateX(30px);
+  animation: notificationSlideIn 0.3s forwards, notificationFadeOut 0.3s 4.7s forwards;
+  max-width: 100%;
   transition: all 0.3s ease;
-  transform-origin: center;
-  animation: statusPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-@keyframes statusPop {
-  0% { transform: scale(0.95); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+.notification::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
 }
 
-.status-indicator.info {
-  background-color: rgba(0, 122, 255, 0.1);
-  border: 1px solid rgba(0, 122, 255, 0.2);
-  color: #007aff;
-}
-
-.status-indicator.success {
-  background-color: rgba(52, 199, 89, 0.1);
-  border: 1px solid rgba(52, 199, 89, 0.2);
-  color: #34c759;
-}
-
-.status-indicator.warning {
-  background-color: rgba(255, 149, 0, 0.1);
-  border: 1px solid rgba(255, 149, 0, 0.2);
-  color: #ff9500;
-}
-
-.signin-error {
+.notification-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  background-color: rgba(255, 59, 48, 0.1);
-  border: 1px solid rgba(255, 59, 48, 0.2);
-  color: #ff3b30;
-  margin-bottom: 20px;
-  width: 100%;
-  box-sizing: border-box;
-  animation: shakeError 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.notification-close:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+@keyframes notificationSlideIn {
+  0% { 
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes notificationFadeOut {
+  0% { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% { 
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.notification.error {
+  background-color: rgba(255, 59, 48, 0.95);
+  color: white;
+  border-left: 4px solid #ff3b30;
+  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
+  animation: notificationSlideIn 0.3s forwards, shakeError 0.5s 0.3s cubic-bezier(.36,.07,.19,.97) both, notificationFadeOut 0.3s 4.7s forwards;
+}
+
+.notification.success {
+  background-color: rgba(52, 199, 89, 0.95);
+  color: white;
+  border-left: 4px solid #34c759;
+  box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);
+}
+
+.notification.info {
+  background-color: rgba(0, 122, 255, 0.95);
+  color: white;
+  border-left: 4px solid #007aff;
+  box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+}
+
+.notification.warning {
+  background-color: rgba(255, 149, 0, 0.95);
+  color: white;
+  border-left: 4px solid #ff9500;
+  box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
 }
 
 @keyframes shakeError {
@@ -559,9 +657,23 @@
   20%, 40%, 60%, 80% { transform: translateX(2px); }
 }
 
-.signin-error p {
+.notification svg {
+  flex-shrink: 0;
+  color: white;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5));
+}
+
+.notification p {
   margin: 0;
   flex: 1;
+  line-height: 1.4;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Legacy error style for compatibility */
+.signin-error {
+  display: none; /* Hide the old implementation */
 }
 
 /* Improve Card Footer */
@@ -644,6 +756,8 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   gap: 16px;
   animation: fadeInUp 0.4s ease-out forwards;
+  position: relative;
+  z-index: 3;
 }
 
 @keyframes fadeInUp {
@@ -846,9 +960,17 @@
 
 .panel-title {
   font-size: 1.4rem;
-  font-weight: 600;
-  margin: 0 0 20px;
+  font-weight: 700;
+  margin: 0 0 22px;
   color: white;
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(90deg, #FFFFFF 0%, #A8A8A8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+  z-index: 5;
 }
 
 .signin-right-panel .signin-content {
@@ -857,7 +979,21 @@
 }
 
 .signin-right-panel-footer {
-  margin-top: 20px;
+  margin-top: auto;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.signin-info {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  line-height: 1.4;
+  margin-top: 8px;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 2;
 }
 
 /* QR code in landscape layout */

@@ -17,13 +17,73 @@ const CoinbaseWalletIcon = () => (
   </svg>
 );
 
+// Error Icon
+const ErrorIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="2"/>
+    <path d="M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M9 9L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+// Info Icon
+const InfoIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Success Icon
+const SuccessIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22 11.0857V12.0057C21.9988 14.1621 21.3005 16.2604 20.0093 17.9875C18.7182 19.7147 16.9033 20.9782 14.8354 21.5896C12.7674 22.201 10.5573 22.1276 8.53447 21.3803C6.51168 20.633 4.78465 19.2518 3.61096 17.4428C2.43727 15.6338 1.87979 13.4938 2.02168 11.342C2.16356 9.19029 2.99721 7.14205 4.39828 5.5028C5.79935 3.86354 7.69279 2.72111 9.79619 2.24587C11.8996 1.77063 14.1003 1.98806 16.07 2.86572" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Warning Icon
+const WarningIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10.29 3.86L1.82 18C1.64 18.33 1.55 18.7 1.56 19.08C1.57 19.46 1.68 19.83 1.88 20.15C2.08 20.47 2.36 20.74 2.69 20.91C3.02 21.09 3.39 21.18 3.77 21.17H20.23C20.61 21.18 20.98 21.09 21.31 20.91C21.64 20.74 21.92 20.47 22.12 20.15C22.32 19.83 22.43 19.46 22.44 19.08C22.45 18.7 22.36 18.33 22.18 18L13.71 3.86C13.51 3.54 13.23 3.27 12.89 3.09C12.56 2.91 12.18 2.82 11.8 2.82C11.42 2.82 11.04 2.91 10.71 3.09C10.37 3.27 10.09 3.54 9.89 3.86" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Notification component
+const Notification = ({ type, message, onClose }) => {
+  const getIcon = () => {
+    switch (type) {
+      case 'error': return <ErrorIcon />;
+      case 'success': return <SuccessIcon />;
+      case 'info': return <InfoIcon />;
+      case 'warning': return <WarningIcon />;
+      default: return <InfoIcon />;
+    }
+  };
+
+  return (
+    <div className={`notification ${type}`}>
+      {getIcon()}
+      <p>{message}</p>
+      <button 
+        className="notification-close" 
+        onClick={onClose}
+        aria-label="Close notification"
+      >
+        ×
+      </button>
+    </div>
+  );
+};
+
 const SignIn = () => {
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
-  const [statusType, setStatusType] = useState('');
+  const [notifications, setNotifications] = useState([]);
   const [walletAddress, setWalletAddress] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
   const [walletDetected, setWalletDetected] = useState(false);
@@ -33,6 +93,17 @@ const SignIn = () => {
   const coinbaseWalletDeepLink = "https://go.cb-w.com/dapp?cb_url=";
   const currentURL = window.location.href;
   const deepLinkURL = `${coinbaseWalletDeepLink}${encodeURIComponent(currentURL)}`;
+  
+  // Show notification helper function
+  const showNotification = (type, message) => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, type, message }]);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 5000);
+  };
   
   // Check if already logged in from localStorage and if Coinbase Wallet is available
   useEffect(() => {
@@ -44,8 +115,7 @@ const SignIn = () => {
           if (parsedData.address) {
             setWalletAddress(parsedData.address);
             setIsAuthenticated(true);
-            setStatusType('success');
-            setStatusMessage('You are already signed in!');
+            showNotification('success', 'You are already signed in!');
           }
         } catch (e) {
           console.error("Error parsing stored user data:", e);
@@ -72,26 +142,13 @@ const SignIn = () => {
     checkAuthStatus();
   }, []);
   
-  // Clear error after 5 seconds
-  useEffect(() => {
-    if (errorMessage) {
-      const timer = setTimeout(() => {
-        setErrorMessage('');
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [errorMessage]);
-  
   const handleSignIn = async () => {
     setIsConnecting(true);
-    setErrorMessage('');
-    setStatusMessage('');
-    setStatusType('');
+    setNotifications([]);
     
     try {
       // 1. Connect to Coinbase Wallet
-      setStatusMessage('Connecting to Coinbase Wallet...');
-      setStatusType('info');
+      showNotification('info', 'Connecting to Coinbase Wallet...');
       
       // We'll try to connect directly instead of checking first
       // This approach is more reliable as some browsers/environments
@@ -100,10 +157,10 @@ const SignIn = () => {
       setWalletAddress(address);
       
       // Update status with connected address
-      setStatusMessage(`Connected to wallet ${shortenAddress(address)}`);
+      showNotification('info', `Connected to wallet ${shortenAddress(address)}`);
       
       // 2. Sign a message to verify ownership
-      setStatusMessage('Please sign the message to verify your wallet ownership');
+      showNotification('info', 'Please sign the message to verify your wallet ownership');
       
       // Generate verification message with nonce for security
       const nonce = Math.floor(Math.random() * 1000000).toString();
@@ -113,7 +170,7 @@ const SignIn = () => {
       const signature = await signMessageWithCoinbase(message);
       
       // 3. Save auth data (in a real app, you'd verify this on a backend)
-      setStatusMessage('Verification successful! Saving your session...');
+      showNotification('info', 'Verification successful! Saving your session...');
       
       // Save authentication data in localStorage
       const userData = {
@@ -128,8 +185,7 @@ const SignIn = () => {
       
       // 4. Complete authentication
       setIsAuthenticated(true);
-      setStatusType('success');
-      setStatusMessage('Authentication successful! Redirecting to dashboard...');
+      showNotification('success', 'Authentication successful! Redirecting to dashboard...');
       
       // Redirect to dashboard after a short delay
       setTimeout(() => {
@@ -138,7 +194,6 @@ const SignIn = () => {
       
     } catch (error) {
       console.error('Error during Coinbase Wallet authentication:', error);
-      setStatusType('warning');
       
       // Format user-friendly error messages
       let errorMessage = 'Failed to connect wallet. Please try again.';
@@ -157,8 +212,7 @@ const SignIn = () => {
         errorMessage = 'Configuration error with Coinbase Wallet. Please refresh and try again.';
       }
       
-      setErrorMessage(errorMessage);
-      setStatusMessage('');
+      showNotification('error', errorMessage);
     } finally {
       setIsConnecting(false);
     }
@@ -183,8 +237,7 @@ const SignIn = () => {
       }
     }
     
-    setStatusType('info');
-    setStatusMessage('You have been signed out.');
+    showNotification('info', 'You have been signed out.');
   };
   
   // Handle close QR code button
@@ -194,8 +247,25 @@ const SignIn = () => {
     setTimeout(() => setShowQRCode(false), 300);
   };
 
+  // Remove notification by id
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   return (
     <div className="signin-container">
+      {/* Notifications container */}
+      <div className="notification-container">
+        {notifications.map(notification => (
+          <Notification
+            key={notification.id}
+            type={notification.type}
+            message={notification.message}
+            onClose={() => removeNotification(notification.id)}
+          />
+        ))}
+      </div>
+      
       <div className="signin-card">
         <div className="signin-left-panel">
           <div className="left-panel-content">
@@ -243,13 +313,6 @@ const SignIn = () => {
         <div className="signin-right-panel">
         {isAuthenticated ? (
           <div className="signin-content">
-            <div className="status-indicator success">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 11.0857V12.0057C21.9988 14.1621 21.3005 16.2604 20.0093 17.9875C18.7182 19.7147 16.9033 20.9782 14.8354 21.5896C12.7674 22.201 10.5573 22.1276 8.53447 21.3803C6.51168 20.633 4.78465 19.2518 3.61096 17.4428C2.43727 15.6338 1.87979 13.4938 2.02168 11.342C2.16356 9.19029 2.99721 7.14205 4.39828 5.5028C5.79935 3.86354 7.69279 2.72111 9.79619 2.24587C11.8996 1.77063 14.1003 1.98806 16.07 2.86572" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-                Signed in successfully
-            </div>
-            
             <div className="wallet-info">
               <CoinbaseWalletIcon />
               <div className="wallet-address">
@@ -272,44 +335,9 @@ const SignIn = () => {
           </div>
         ) : (
           <div className="signin-content">
+            <div className="wallet-connect-container">
               <h2 className="panel-title">Connect Your Wallet</h2>
-            
-            {errorMessage && (
-              <div className="signin-error">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 9L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <p>{errorMessage}</p>
-              </div>
-            )}
-            
-            {statusMessage && (
-              <div className={`status-indicator ${statusType}`}>
-                {statusType === 'info' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-                {statusType === 'success' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22 11.0857V12.0057C21.9988 14.1621 21.3005 16.2604 20.0093 17.9875C18.7182 19.7147 16.9033 20.9782 14.8354 21.5896C12.7674 22.201 10.5573 22.1276 8.53447 21.3803C6.51168 20.633 4.78465 19.2518 3.61096 17.4428C2.43727 15.6338 1.87979 13.4938 2.02168 11.342C2.16356 9.19029 2.99721 7.14205 4.39828 5.5028C5.79935 3.86354 7.69279 2.72111 9.79619 2.24587C11.8996 1.77063 14.1003 1.98806 16.07 2.86572" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-                {statusType === 'warning' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.29 3.86L1.82 18C1.64 18.33 1.55 18.7 1.56 19.08C1.57 19.46 1.68 19.83 1.88 20.15C2.08 20.47 2.36 20.74 2.69 20.91C3.02 21.09 3.39 21.18 3.77 21.17H20.23C20.61 21.18 20.98 21.09 21.31 20.91C21.64 20.74 21.92 20.47 22.12 20.15C22.32 19.83 22.43 19.46 22.44 19.08C22.45 18.7 22.36 18.33 22.18 18L13.71 3.86C13.51 3.54 13.23 3.27 12.89 3.09C12.56 2.91 12.18 2.82 11.8 2.82C11.42 2.82 11.04 2.91 10.71 3.09C10.37 3.27 10.09 3.54 9.89 3.86" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-                {statusMessage}
-              </div>
-            )}
-            
+              
               <div className="wallet-option-single coinbase">
                 <CoinbaseWalletIcon />
                 <div className="wallet-option-details">
@@ -385,15 +413,16 @@ const SignIn = () => {
                   Connect with Coinbase Wallet
               </button>
             )}
-            
-              <div className="signin-right-panel-footer">
-                <p className="signin-info">
-                  By connecting with Coinbase Wallet, you're accessing a secure, blockchain-based authentication system with biometric protection.
-                </p>
-              </div>
             </div>
-          )}
+            
+            <div className="signin-right-panel-footer">
+              <p className="signin-info">
+                By connecting with Coinbase Wallet, you're accessing a secure, blockchain-based authentication system with biometric protection.
+              </p>
+            </div>
           </div>
+          )}
+        </div>
       </div>
     </div>
   );
