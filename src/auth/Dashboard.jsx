@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shortenAddress } from '../utils/coinbaseAuthUtils';
+import { getPaymentHistory, getLatestRevenueSplit } from '../services/paymentService';
+import RevenueSplitChart from '../components/RevenueSplitChart';
 import '../styles/Dashboard.css';
 import '../styles/chain-indicators.css';
 
@@ -9,6 +11,9 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [payments, setPayments] = useState([]);
+  const [revenueSplit, setRevenueSplit] = useState(null);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   
   // Sample data for dashboard display
   const verificationStatus = {
@@ -30,7 +35,18 @@ const Dashboard = () => {
       try {
         const parsedData = JSON.parse(storedData);
         setUserData(parsedData);
+        
+        // If user has verification status, use it, otherwise use sample data
+        if (parsedData.verificationStatus) {
+          verificationStatus.status = parsedData.verificationStatus.status;
+          verificationStatus.score = parsedData.verificationStatus.score;
+          verificationStatus.lastVerified = new Date(parsedData.verificationStatus.lastVerified).toLocaleDateString();
+        }
+        
         setIsLoading(false);
+        
+        // Load payment history and revenue split
+        loadDashboardData(parsedData.address);
       } catch (e) {
         console.error("Error parsing stored user data:", e);
         localStorage.removeItem('zybl_user_data');
@@ -40,6 +56,27 @@ const Dashboard = () => {
     
     checkAuth();
   }, [navigate]);
+    // Load payment history and revenue split data
+  const loadDashboardData = async (walletAddress) => {
+    setIsLoadingData(true);
+    try {
+      // Get payment history
+      const paymentHistory = await getPaymentHistory(walletAddress);
+      setPayments(paymentHistory || []);
+      
+      // Get latest revenue split
+      const latestSplit = await getLatestRevenueSplit(walletAddress);
+      setRevenueSplit(latestSplit);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      // In a real app, you'd show an error message to the user
+      // For demo, we'll set empty data
+      setPayments([]);
+      setRevenueSplit(null);
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
 
   const handleSignOut = () => {
     localStorage.removeItem('zybl_user_data');
@@ -95,8 +132,7 @@ const Dashboard = () => {
               <path d="M9 22V12H15V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Dashboard
-          </a>
-          <a 
+          </a>          <a 
             href="#" 
             className={`nav-item ${activeTab === 'verification' ? 'active' : ''}`}
             onClick={() => setActiveTab('verification')}
@@ -107,6 +143,18 @@ const Dashboard = () => {
               <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Verification
+          </a>
+          <a 
+            href="#" 
+            className={`nav-item ${activeTab === 'revenue' ? 'active' : ''}`}
+            onClick={() => setActiveTab('revenue')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 20V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 20V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 20V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Revenue Split
           </a>
           <a 
             href="#" 
@@ -154,8 +202,7 @@ const Dashboard = () => {
           <p>Your secure gateway to Sybil-resistant applications</p>
         </div>
 
-        {activeTab === 'dashboard' && (
-          <div className="dashboard-main">
+        {activeTab === 'dashboard' && (          <div className="dashboard-main">
             <div className="dashboard-card wallet-card">
               <div className="card-header">
                 <h2>Your Wallet</h2>
@@ -230,61 +277,86 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="dashboard-card apps-card">
+            <div className="dashboard-card payments-card">
               <div className="card-header">
-                <h2>Compatible Applications</h2>
+                <h2>Payment History</h2>
               </div>
               <div className="card-content">
-                <div className="app-list">
-                  <div className="app-item">
-                    <div className="app-icon coinbase-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" fill="#0052FF"/>
-                        <path d="M12 6.80005C9.20067 6.80005 6.92 9.07738 6.92 11.8734C6.92 14.6694 9.20067 16.9467 12 16.9467C14.7993 16.9467 17.08 14.6694 17.08 11.8734C17.08 9.07738 14.7993 6.80005 12 6.80005ZM12 14.5601C10.5206 14.5601 9.32 13.3621 9.32 11.8867C9.32 10.4114 10.5206 9.21338 12 9.21338C13.4794 9.21338 14.68 10.4114 14.68 11.8867C14.68 13.3621 13.4794 14.5601 12 14.5601Z" fill="white"/>
-                      </svg>
-                    </div>
-                    <div className="app-details">
-                      <div className="app-name">Coinbase Base Chain</div>
-                      <div className="app-description">Access Coinbase's Base Chain with your verified identity</div>
-                    </div>
-                    <button className="app-button">Launch</button>
+                {isLoadingData ? (
+                  <div className="loading-data">
+                    <div className="loading-spinner small"></div>
+                    <p>Loading payment history...</p>
                   </div>
-                  
-                  <div className="app-item">
-                    <div className="app-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="24" height="24" rx="12" fill="#6C5CE7"/>
-                        <path d="M12 6L16 12L12 18L8 12L12 6Z" fill="white"/>
-                      </svg>
-                    </div>
-                    <div className="app-details">
-                      <div className="app-name">Zybl Governance</div>
-                      <div className="app-description">Participate in decentralized governance with your verified identity</div>
-                    </div>
-                    <button className="app-button">Launch</button>
+                ) : payments.length > 0 ? (
+                  <div className="payment-history">
+                    <table className="payment-table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Amount</th>
+                          <th>Status</th>
+                          <th>Transaction ID</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {payments.map(payment => (
+                          <tr key={payment.id}>
+                            <td>{new Date(payment.timestamp).toLocaleDateString()}</td>
+                            <td>
+                              <div className="amount-cell">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <circle cx="12" cy="12" r="11" fill="#2775CA" stroke="#FFFFFF" strokeWidth="1"/>
+                                  <path d="M16.95 10.8C16.95 10.2.5 9.5 9.6 9.5 8.75 6.5 12 6.5 12 6.5C8.35 6.5 5.4 9.45 5.4 13.1C5.4 16.75 8.35 19.7 12 19.7C15.65 19.7 18.6 16.75 18.6 13.1C18.6 12.3 18.45 11.55 18.15 10.8H16.95ZM13.2 15.8V17H10.8V15.8H9.6V13.4H14.4V15.8H13.2ZM13.2 12.2H10.8V11H13.2V12.2ZM14.4 9.8H9.6V8.4H10.8V7.2H13.2V8.4H14.4V9.8Z" fill="white"/>
+                                </svg>
+                                <span>{payment.amount} {payment.currency}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`status-pill ${payment.status}`}>
+                                {payment.status}
+                              </span>
+                            </td>
+                            <td className="transaction-id">
+                              {payment.transactionId.substring(0, 8)}...
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  
-                  <div className="app-item">
-                    <div className="app-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="24" height="24" rx="12" fill="#2ECE7D"/>
-                        <path d="M17 9C17 12.866 13.866 16 10 16C6.13401 16 3 12.866 3 9C3 5.13401 6.13401 2 10 2C13.866 2 17 5.13401 17 9Z" fill="white"/>
-                        <path d="M21 15C21 17.7614 18.7614 20 16 20C13.2386 20 11 17.7614 11 15C11 12.2386 13.2386 10 16 10C18.7614 10 21 12.2386 21 15Z" fill="white"/>
-                      </svg>
+                ) : (
+                  <div className="no-payments">
+                    <p>No payment history available</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {revenueSplit && (
+              <div className="dashboard-card revenue-card">
+                <div className="card-header">
+                  <h2>Revenue Split Overview</h2>
+                </div>
+                <div className="card-content">
+                  <div className="revenue-chart">
+                    <RevenueSplitChart data={revenueSplit} />
+                  </div>
+                  <div className="revenue-info">
+                    <div className="info-item">
+                      <span className="info-label">Total Amount</span>
+                      <span className="info-value">{revenueSplit.totalAmount} USDC</span>
                     </div>
-                    <div className="app-details">
-                      <div className="app-name">DeFi Platform</div>
-                      <div className="app-description">Access exclusive DeFi opportunities with Sybil protection</div>
+                    <div className="info-item">
+                      <span className="info-label">Distribution Date</span>
+                      <span className="info-value">{new Date(revenueSplit.timestamp).toLocaleDateString()}</span>
                     </div>
-                    <button className="app-button">Coming Soon</button>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
-        
-        {activeTab === 'verification' && (
+          {activeTab === 'verification' && (
           <div className="dashboard-main">
             <div className="dashboard-card">
               <div className="card-header">
@@ -317,12 +389,116 @@ const Dashboard = () => {
                     </div>
                     <div className="method-details">
                       <div className="method-name">Biometric Verification</div>
-                      <div className="method-status pending">Optional</div>
-                      <div className="method-description">Add an extra layer of security with biometric verification</div>
+                      <div className="method-status verified">Verified</div>
+                      <div className="method-description">Your biometric verification is active and up to date</div>
                     </div>
-                    <button className="method-button">Enable</button>
+                    <button className="method-button">Manage</button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {activeTab === 'revenue' && (
+          <div className="dashboard-main">
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h2>Revenue Split Details</h2>
+              </div>
+              <div className="card-content">
+                {isLoadingData ? (
+                  <div className="loading-data">
+                    <div className="loading-spinner small"></div>
+                    <p>Loading revenue data...</p>
+                  </div>
+                ) : revenueSplit ? (
+                  <div className="revenue-details">
+                    <div className="revenue-chart-container full-width">
+                      <h3>Distribution Visualization</h3>
+                      <RevenueSplitChart data={revenueSplit} />
+                    </div>
+                    
+                    <div className="revenue-details-section">
+                      <h3>Revenue Split Information</h3>
+                      <div className="revenue-info-grid">
+                        <div className="info-block">
+                          <span className="info-label">Total Amount</span>
+                          <span className="info-value primary">{revenueSplit.totalAmount} USDC</span>
+                        </div>
+                        <div className="info-block">
+                          <span className="info-label">Transaction ID</span>
+                          <span className="info-value">{revenueSplit.transactionId}</span>
+                        </div>
+                        <div className="info-block">
+                          <span className="info-label">Date</span>
+                          <span className="info-value">{new Date(revenueSplit.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div className="info-block">
+                          <span className="info-label">Wallet</span>
+                          <span className="info-value">{shortenAddress(revenueSplit.walletAddress)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="revenue-details-section">
+                      <h3>Split Breakdown</h3>
+                      <div className="split-table-container">
+                        <table className="split-table">
+                          <thead>
+                            <tr>
+                              <th>Recipient</th>
+                              <th>Percentage</th>
+                              <th>Amount (USDC)</th>
+                              <th>Wallet Address</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {revenueSplit.splits.map((split, index) => (
+                              <tr key={index}>
+                                <td>{split.recipient}</td>
+                                <td>{split.percentage}%</td>
+                                <td>{split.amount.toFixed(2)}</td>
+                                <td className="address">{shortenAddress(split.walletAddress)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    
+                    <div className="revenue-details-section">
+                      <h3>Revenue Split Explanation</h3>
+                      <div className="explanation-content">
+                        <p>Your payment is distributed to support the ecosystem in the following ways:</p>
+                        <ul>
+                          <li><strong>User Treasury (40%):</strong> Allocated to a treasury controlled by verified users, supporting governance and community initiatives.</li>
+                          <li><strong>Protocol (25%):</strong> Supports ongoing development, maintenance, and security of the Zybl platform.</li>
+                          <li><strong>Validators (20%):</strong> Rewards the network validators who secure the verification process.</li>
+                          <li><strong>Community (15%):</strong> Funds community growth, education, and ecosystem development.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="no-revenue-data">
+                    <div className="empty-state">
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 20V10" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M12 20V4" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M6 20V14" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <h3>No Revenue Split Data Available</h3>
+                      <p>Complete the verification and payment process to see your revenue split details.</p>
+                      <button 
+                        className="dashboard-button primary"
+                        onClick={() => navigate('/verification')}
+                      >
+                        Start Verification
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

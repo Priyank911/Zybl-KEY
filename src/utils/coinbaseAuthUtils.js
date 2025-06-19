@@ -155,9 +155,9 @@ export const signMessageWithCoinbase = async (message) => {
       window.coinbaseWalletProvider = provider;
     }
     
-    // Create ethers provider
-    const ethersProvider = new ethers.BrowserProvider(provider);
-    const signer = await ethersProvider.getSigner();
+    // Create ethers provider - using ethers v5 syntax
+    const ethersProvider = new ethers.providers.Web3Provider(provider);
+    const signer = ethersProvider.getSigner();
     
     // Sign the message
     console.log("Signing message with provider:", provider);

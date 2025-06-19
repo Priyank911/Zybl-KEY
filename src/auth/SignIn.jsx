@@ -185,11 +185,11 @@ const SignIn = () => {
       
       // 4. Complete authentication
       setIsAuthenticated(true);
-      showNotification('success', 'Authentication successful! Redirecting to dashboard...');
+      showNotification('success', 'Authentication successful! Redirecting to verification...');
       
-      // Redirect to dashboard after a short delay
+      // Redirect to verification step after a short delay
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/verification');
       }, 1500);
       
     } catch (error) {
@@ -322,9 +322,9 @@ const SignIn = () => {
             
             <button 
                 className="signin-button primary"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/verification')}
             >
-              Go to Dashboard
+              Start Verification
             </button>
             <button 
               className="signin-button secondary"

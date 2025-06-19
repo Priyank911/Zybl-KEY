@@ -12,6 +12,8 @@ import Features from './components/Features';
 import FAQ from './components/FAQ';
 import SignIn from './auth/SignIn';
 import Dashboard from './auth/Dashboard';
+import BiometricVerification from './auth/BiometricVerification';
+import Payment from './auth/Payment';
 import { initSmoothScrolling, initScrollAnimations } from './utils/scrollUtils';
 
 // Wallet icon for the button
@@ -38,6 +40,16 @@ const ProtectedSignInRoute = () => {
 // Protected route component that redirects to sign in if not logged in
 const ProtectedDashboardRoute = () => {
   return isAuthenticated() ? <Dashboard /> : <Navigate to="/signin" replace />;
+};
+
+// Protected route for biometric verification
+const ProtectedVerificationRoute = () => {
+  return isAuthenticated() ? <BiometricVerification /> : <Navigate to="/signin" replace />;
+};
+
+// Protected route for payment
+const ProtectedPaymentRoute = () => {
+  return isAuthenticated() ? <Payment /> : <Navigate to="/signin" replace />;
 };
 
 function HomePage() {
@@ -174,6 +186,8 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/signin" element={<ProtectedSignInRoute />} />
       <Route path="/dashboard" element={<ProtectedDashboardRoute />} />
+      <Route path="/verification" element={<ProtectedVerificationRoute />} />
+      <Route path="/payment" element={<ProtectedPaymentRoute />} />
     </Routes>
   );
 }
