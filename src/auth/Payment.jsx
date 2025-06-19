@@ -124,7 +124,7 @@ const SecureBadge = () => (  <div className="secure-payment-badge">
 const Payment = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState('initial'); // initial, processing, success, error
+  const [paymentStatus, setPaymentStatus] = useState('initial'); // initial, processing, minting, success, error
   const [paymentAmount, setPaymentAmount] = useState(2); // Changed from 25 to 2 USDC for verification
   const [transactionId, setTransactionId] = useState(null);
   const [explorerLink, setExplorerLink] = useState(null); // Link to Base Sepolia explorer
@@ -133,6 +133,8 @@ const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState('usdc');
   const [revenueSplit, setRevenueSplit] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mintingNFT, setMintingNFT] = useState(false);
+  const [nftMetadata, setNftMetadata] = useState(null);
   const receiptRef = useRef(null); // Reference for the receipt to print as PDF
   
   // Mock wallet popup state
@@ -227,38 +229,6 @@ const Payment = () => {
     setShowMockWallet(false);
     // This will trigger an error in the payment process
   };
-
-  // Check and connect wallet on mount (for X402 payment)
-  useEffect(() => {
-    const connectCoinbaseWallet = async () => {
-      if (!userData) return;
-      
-      setIsLoading(true);
-      try {
-        // Try to connect to Coinbase Wallet if not already connected
-        if (!userData.address) {
-          const walletInfo = await connectWallet();
-          
-          // Update userData with wallet info
-          const updatedUserData = {
-            ...userData,
-            address: walletInfo.address,
-            connected: walletInfo.connected
-          };
-          
-          localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));
-          setUserData(updatedUserData);
-        }
-      } catch (error) {
-        console.error("Wallet connection error:", error);
-        setPaymentError("Failed to connect to Coinbase Wallet. Please make sure it's installed and try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    connectCoinbaseWallet();
-  }, [userData]);
   
   // Watch for mock wallet popup requests
   useEffect(() => {
@@ -340,6 +310,14 @@ const Payment = () => {
         if (result && result.success) {
           setTransactionId(result.receipt?.transactionHash || "demo-tx-" + Date.now());
           setExplorerLink(getTransactionLink(result.receipt?.transactionHash) || "#"); 
+          
+          // Save the NFT metadata if available
+          if (result.nft) {
+            setNftMetadata(result.nft);
+          }
+          
+          // After successful payment, transition directly to success state
+          // The NFT minting is now handled with real wallet signature in the x402PaymentService
           setPaymentStatus('success');
           
           // Set revenue split data if available
@@ -795,9 +773,9 @@ const Payment = () => {
                 
                 <a href="https://sepolia.basescan.org/tx/${txHash}" target="_blank" class="explorer-button">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M15 3H21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M10 14L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   View Complete Transaction on Base Explorer
                 </a>
@@ -1028,7 +1006,8 @@ const Payment = () => {
                   </div>
                 </div>
               </>
-            )}        {paymentStatus === 'processing' && (
+            )}        
+            {paymentStatus === 'processing' && (
               <div className="payment-processing">
                 <div className="processing-header">
                   <div className="processing-animation">
@@ -1159,7 +1138,82 @@ const Payment = () => {
                   </div>
                 </div>
               </div>
-            )}            {paymentStatus === 'success' && (
+            )}
+            {paymentStatus === 'minting' && (
+              <div className="payment-processing">
+                <div className="processing-header">
+                  <div className="processing-animation">
+                    <div className="circle-pulse"></div>
+                    <div className="processing-icon" style={{ background: "linear-gradient(135deg, #0052FF, #002A85)" }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.42 4.58C19.9183 4.07658 19.3223 3.6779 18.6653 3.40824C18.0082 3.13859 17.3042 3.00131 16.595 3.00131C15.8858 3.00131 15.1818 3.13859 14.5247 3.40824C13.8677 3.6779 13.2717 4.07658 12.77 4.58L12 5.36L11.23 4.58C10.9421 4.29192 10.608 4.06205 10.2429 3.9004C9.87779 3.73876 9.48772 3.64721 9.0925 3.6307C8.69728 3.61419 8.30179 3.67296 7.9257 3.80404C7.5496 3.93513 7.19952 4.1358 6.89752 4.39569C6.59551 4.65558 6.34633 4.97026 6.16177 5.32323C5.97721 5.67619 5.8609 6.06136 5.81995 6.45908C5.779 6.85679 5.81417 7.25913 5.92327 7.6416C6.03236 8.02407 6.21318 8.38002 6.45 8.69L12 14.3L17.54 8.78C18.0435 8.27852 18.4423 7.68248 18.7119 7.02544C18.9816 6.3684 19.1188 5.66437 19.1188 4.95167C19.1188 4.23897 18.9816 3.53494 18.7119 2.8779C18.4423 2.22086 18.0435 1.62482 17.54 1.12334C17.0365 0.621855 16.4405 0.223093 15.7835 -0.0465585C15.1264 -0.31621 14.4224 -0.453335 13.7097 -0.453335C12.997 -0.453335 12.293 -0.31621 11.636 -0.0465585C10.9789 0.223093 10.3829 0.621855 9.87942 1.12334L12 3.24L14.1206 1.12334C14.6241 0.621855 15.2201 0.223093 15.8771 -0.0465585C16.5342 -0.31621 17.2382 -0.453335 17.9509 -0.453335C18.6636 -0.453335 19.3676 -0.31621 20.0247 -0.0465585C20.6817 0.223093 21.2777 0.621855 21.7812 1.12334C22.2847 1.62482 22.6834 2.22086 22.9531 2.8779C23.2228 3.53494 23.36 4.23897 23.36 4.95167C23.36 5.66437 23.2228 6.3684 22.9531 7.02544C22.6834 7.68248 22.2847 8.27852 21.7812 8.78L12 18.64L2.22 8.69C1.73248 8.19243 1.36836 7.58522 1.15765 6.91708C0.946933 6.24894 0.895358 5.53536 1.00726 4.83858C1.11916 4.14179 1.39068 3.48126 1.80148 2.91176C2.21228 2.34225 2.75145 1.87935 3.37357 1.56082C3.99568 1.2423 4.68577 1.07774 5.38795 1.08034C6.09013 1.08294 6.77881 1.25264 7.39826 1.57573C8.01771 1.89881 8.55308 2.3655 8.95925 2.93774C9.36541 3.50998 9.6316 4.17227 9.73775 4.87L12 7.13L14.2622 4.87C14.3684 4.17227 14.6346 3.50998 15.0407 2.93774C15.4469 2.3655 15.9823 1.89881 16.6017 1.57573C17.2212 1.25264 17.9099 1.08294 18.612 1.08034C19.3142 1.07774 20.0043 1.2423 20.6264 1.56082C21.2485 1.87935 21.7877 2.34225 22.1985 2.91176C22.6093 3.48126 22.8808 4.14179 22.9927 4.83858C23.1046 5.53536 23.0531 6.24894 22.8423 6.91708C22.6316 7.58522 22.2675 8.19243 21.78 8.69L20.42 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                <h2>Minting NFT Badge</h2>
+                </div>
+              <p className="processing-subtitle">Please sign the message to mint your soulbound NFT</p>
+                
+                <div className="nft-minting-info" style={{
+                  background: "rgba(255,255,255,0.07)",
+                  padding: "15px",
+                  borderRadius: "10px",
+                  marginBottom: "20px"
+                }}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "15px"
+                  }}>
+                    <div style={{
+                      width: "80px",
+                      height: "80px",
+                      background: "linear-gradient(135deg, #0052FF, #002A85)",
+                      borderRadius: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "white",
+                      fontSize: "32px",
+                      fontWeight: "bold"
+                    }}>
+                      Z
+                    </div>
+                  </div>
+                  <div style={{
+                    textAlign: "center",
+                    marginBottom: "15px"
+                  }}>
+                    <h3 style={{ margin: "0 0 5px 0", fontSize: "1rem" }}>Zybl Passport Verification Badge</h3>
+                    <p style={{ margin: "0", fontSize: "0.8rem", opacity: "0.7" }}>
+                      Soulbound NFT confirming your verified identity
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="processing-note" style={{ marginTop: "10px" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M12 8V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                  </svg>
+                  <p>Please approve the wallet signature request</p>
+                </div>
+                
+                {mintingNFT && (
+                  <div className="minting-progress" style={{ marginTop: "20px" }}>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ 
+                        width: `100%`,
+                        animation: "pulse-width 2s infinite"
+                      }}></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}            
+            {paymentStatus === 'success' && (
             <div className="payment-success-landscape">
               <div className="success-card-main">
                 {/* Left Side - Success Animation */}
@@ -1291,6 +1345,7 @@ const Payment = () => {
                         justifyContent: 'space-between', 
                         alignItems: 'center',
                         marginBottom: 4
+                     
                       }}>
                         <div style={{ fontSize: '0.9rem', color: '#777777', fontWeight: 500 }}>Transaction Hash</div>
                         <div style={{ 
@@ -1638,8 +1693,8 @@ const Payment = () => {
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 18 }}>
                   <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
                     <circle cx="24" cy="24" r="22" fill="rgba(255,0,0,0.08)" stroke="#FF3B3B" strokeWidth="2"/>
-                    <path d="M16 16L32 32" stroke="#FF3B3B" strokeWidth="3" strokeLinecap="round"/>
-                    <path d="M32 16L16 32" stroke="#FF3B3B" strokeWidth="3" strokeLinecap="round"/>
+                    <path d="M16 16L32 32" stroke="#FF3B3B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M32 16L16 32" stroke="#FF3B3B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 <h2 style={{ color: '#FF3B3B', fontWeight: 800, fontSize: '1.5rem', marginBottom: 10, letterSpacing: '-0.5px' }}>Payment Failed</h2>
@@ -1705,6 +1760,13 @@ const Payment = () => {
             )}
         </div>
       </div>
+      <MockWalletPopup 
+        show={showMockWallet}
+        onApprove={handleWalletApprove}
+        onCancel={handleWalletReject}
+        amount={mockWalletData.amount}
+        recipient={mockWalletData.recipient}
+      />
       <div className="wallet-footer-container">
         <div className="wallet-address-container">
             <div className="coinbase-icon">
@@ -1724,8 +1786,8 @@ const Payment = () => {
               <span className="copy-icon">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                  <path d="M5 15H4C3.46957 15 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
               </span>
             </span>
             </div>

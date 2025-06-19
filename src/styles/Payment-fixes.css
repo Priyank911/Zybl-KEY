@@ -163,3 +163,19 @@
     line-height: 1.4;
   }
 }
+
+/* NFT Minting animation */
+@keyframes pulse-width {
+  0% {
+    opacity: 0.8;
+    background: linear-gradient(90deg, #0052FF 0%, #002A85 100%);
+  }
+  50% {
+    opacity: 1;
+    background: linear-gradient(90deg, #0064FF 0%, #0052FF 100%);
+  }
+  100% {
+    opacity: 0.8;
+    background: linear-gradient(90deg, #0052FF 0%, #002A85 100%);
+  }
+}
