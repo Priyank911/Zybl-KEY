@@ -1,6 +1,7 @@
 // src/auth/BiometricVerification.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { trackUserJourney } from '../utils/firebaseConfig';
 import '../styles/BiometricVerification.css';
 
 // Success Icon
@@ -64,11 +65,13 @@ const AuthIndicator = ({ address }) => (
 
 const BiometricVerification = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
   const [userData, setUserData] = useState(null);
   const [scanResults, setScanResults] = useState({});
+  const [userIdFromUrl, setUserIdFromUrl] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   
@@ -110,7 +113,24 @@ const BiometricVerification = () => {
       ]
     }
   ];
-    // Check authentication on mount
+  
+  // Extract user ID from URL
+  useEffect(() => {
+    try {
+      // Parse the user ID from the URL if available
+      // Format expected: /verification?id=user123
+      const params = new URLSearchParams(location.search);
+      const urlUserId = params.get('id');
+      if (urlUserId) {
+        console.log("Found user ID in URL:", urlUserId);
+        setUserIdFromUrl(urlUserId);
+      }
+    } catch (error) {
+      console.error("Error parsing URL for user ID:", error);
+    }
+  }, [location.search]);
+
+  // Check authentication on mount
   useEffect(() => {
     const storedData = localStorage.getItem('zybl_user_data');
     if (!storedData) {
@@ -186,7 +206,6 @@ const BiometricVerification = () => {
     
     return metrics;
   };
-
   // Simulate verification process with fake data
   const startVerification = () => {
     setIsVerifying(true);
@@ -195,7 +214,7 @@ const BiometricVerification = () => {
     const newMetrics = generateRandomData(currentStep);
     
     // For the demo, we'll use setTimeout to simulate the verification process
-    setTimeout(() => {
+    setTimeout(async () => {
       // Update results
       setScanResults(prev => ({
         ...prev,
@@ -206,25 +225,38 @@ const BiometricVerification = () => {
         // Move to the next step
         setCurrentStep(currentStep + 1);
         setIsVerifying(false);
-      } else {
-        // Complete verification
+      } else {        // Complete verification
         setVerificationComplete(true);
         setIsVerifying(false);
-          // Save verification status to localStorage
-        const updatedUserData = {
-          ...userData,
-          verificationStatus: {
-            status: 'Verified',
-            score: 95,
-            lastVerified: new Date().toISOString()
-          }
+          
+        // Save verification status to localStorage
+        const verificationStatus = {
+          status: 'Verified',
+          score: 95,
+          lastVerified: new Date().toISOString()
         };
         
-        localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));
+        const updatedUserData = {
+          ...userData,
+          verificationStatus
+        };
         
-        // Redirect to payment page after 3.5 seconds for a slower transition
+        // Track verification completion in Firebase
+        if (userData && userData.userID) {
+          await trackUserJourney(userData.userID, 'verification', {
+            score: verificationStatus.score,
+            timestamp: verificationStatus.lastVerified,
+            steps: Object.keys(scanResults).length + 1,
+            status: verificationStatus.status
+          });
+        }
+        
+        localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));        // Redirect to payment page with user ID after 3.5 seconds for a slower transition
+        const userId = userIdFromUrl || (userData && userData.userID);
+        const redirectUrl = userId ? `/payment?id=${userId}` : '/payment';
+          
         setTimeout(() => {
-          navigate('/payment');
+          navigate(redirectUrl);
         }, 3500);
       }
     }, 2000);

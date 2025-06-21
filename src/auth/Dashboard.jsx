@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { shortenAddress } from '../utils/coinbaseAuthUtils';
 import { getPaymentHistory, getLatestRevenueSplit } from '../services/paymentService';
+import { trackUserJourney } from '../utils/firebaseConfig';
 import RevenueSplitChart from '../components/RevenueSplitChart';
 import ActivityFeed from '../components/ActivityFeed';
 import NFTPassport from '../components/NFTPassport';
@@ -12,12 +13,14 @@ import '../styles/chain-indicators.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [payments, setPayments] = useState([]);
   const [revenueSplit, setRevenueSplit] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [userIdFromUrl, setUserIdFromUrl] = useState(null);
   
   // Sample data for dashboard display
   const verificationStatus = {
@@ -25,10 +28,15 @@ const Dashboard = () => {
     score: 95,
     lastVerified: new Date().toLocaleDateString(),
   };
-
   useEffect(() => {
+    // Parse the user ID from the URL if available
+    // Format expected: /dashboard?id=user123
+    const params = new URLSearchParams(location.search);
+    const urlUserId = params.get('id');
+    setUserIdFromUrl(urlUserId);
+    
     // Check authentication from localStorage
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const storedData = localStorage.getItem('zybl_user_data');
       if (!storedData) {
         // Not authenticated, redirect to signin
@@ -47,7 +55,31 @@ const Dashboard = () => {
           verificationStatus.lastVerified = new Date(parsedData.verificationStatus.lastVerified).toLocaleDateString();
         }
         
+        // If we have a user ID but URL doesn't have it, update the URL
+        if (parsedData.userID && !urlUserId) {
+          // Update URL without navigating (just add a query parameter)
+          window.history.replaceState(null, '', `${location.pathname}?id=${parsedData.userID}`);
+        }
+        
+        // If URL has user ID that doesn't match our stored ID, something's wrong
+        if (urlUserId && parsedData.userID && urlUserId !== parsedData.userID) {
+          console.warn('URL user ID does not match stored user ID');
+        }
+        
         setIsLoading(false);
+        
+        // Track dashboard view in user journey
+        if (parsedData.userID) {
+          try {
+            await trackUserJourney(parsedData.userID, 'dashboard', {
+              timestamp: new Date().toISOString(),
+              referrer: document.referrer || 'direct',
+              urlHasId: !!urlUserId
+            });
+          } catch (error) {
+            console.error('Error tracking dashboard view:', error);
+          }
+        }
         
         // Load payment history and revenue split
         loadDashboardData(parsedData.address);
@@ -59,7 +91,7 @@ const Dashboard = () => {
     };
     
     checkAuth();
-  }, [navigate]);
+  }, [navigate, location.search]);
     // Load payment history and revenue split data
   const loadDashboardData = async (walletAddress) => {
     setIsLoadingData(true);

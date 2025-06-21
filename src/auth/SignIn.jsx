@@ -7,6 +7,7 @@ import {
   shortenAddress, 
   isCoinbaseWalletAvailable
 } from '../utils/coinbaseAuthUtils';
+import { createOrGetUserID, trackUserJourney } from '../utils/firebaseConfig';
 import '../styles/SignIn.css';
 
 // Coinbase Wallet Icon
@@ -172,8 +173,25 @@ const SignIn = () => {
       // 3. Save auth data (in a real app, you'd verify this on a backend)
       showNotification('info', 'Verification successful! Saving your session...');
       
+      // Generate or retrieve a unique user ID and track this signin
+      showNotification('info', 'Creating unique user profile...');
+      const userID = await createOrGetUserID(address);
+      
+      // Track the signin step in user journey
+      await trackUserJourney(userID, 'signin', {
+        address,
+        chainId,
+        timestamp: new Date().toISOString(),
+        deviceInfo: {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language
+        }
+      });
+      
       // Save authentication data in localStorage
       const userData = {
+        userID,
         address,
         chainId,
         timestamp,
@@ -187,9 +205,9 @@ const SignIn = () => {
       setIsAuthenticated(true);
       showNotification('success', 'Authentication successful! Redirecting to verification...');
       
-      // Redirect to verification step after a short delay
+      // Redirect to verification step with user ID after a short delay
       setTimeout(() => {
-        navigate('/verification');
+        navigate(`/verification?id=${userID}`);
       }, 1500);
       
     } catch (error) {

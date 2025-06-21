@@ -1,8 +1,9 @@
 // src/auth/Payment.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { processPayment } from '../services/paymentService'; // Legacy service
 import { initiateX402Payment, connectWallet, formatAddress, getTransactionLink, getBaseSepoliaTestnetETH, PROTOCOL_ADDRESS } from '../services/x402PaymentService'; // X402 service
+import { trackUserJourney } from '../utils/firebaseConfig';
 import '../styles/Payment.css';
 import '../styles/Payment-fixes.css'; // Extra fixes for compact container
 import Logo from '../assets/Logo.png';
@@ -123,6 +124,7 @@ const SecureBadge = () => (  <div className="secure-payment-badge">
 
 const Payment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('initial'); // initial, processing, minting, success, error
   const [paymentAmount, setPaymentAmount] = useState(2); // Changed from 25 to 2 USDC for verification
@@ -135,6 +137,7 @@ const Payment = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [mintingNFT, setMintingNFT] = useState(false);
   const [nftMetadata, setNftMetadata] = useState(null);
+  const [userIdFromUrl, setUserIdFromUrl] = useState(null);
   const receiptRef = useRef(null); // Reference for the receipt to print as PDF
   
   // Mock wallet popup state
@@ -144,6 +147,22 @@ const Payment = () => {
     recipient: PROTOCOL_ADDRESS
   });
   
+  // Extract user ID from URL
+  useEffect(() => {
+    try {
+      // Parse the user ID from the URL if available
+      // Format expected: /payment?id=user123
+      const params = new URLSearchParams(location.search);
+      const urlUserId = params.get('id');
+      if (urlUserId) {
+        console.log("Found user ID in URL:", urlUserId);
+        setUserIdFromUrl(urlUserId);
+      }
+    } catch (error) {
+      console.error("Error parsing URL for user ID:", error);
+    }
+  }, [location.search]);
+
   // Check authentication on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -325,20 +344,35 @@ const Payment = () => {
             setRevenueSplit(result.receipt.splits);
           }
           
+          // Create payment status data
+          const paymentStatus = {
+            status: 'paid',
+            amount: paymentAmount,
+            currency: 'USDC',
+            transactionId: result.receipt?.transactionHash,
+            explorerLink: getTransactionLink(result.receipt?.transactionHash),
+            network: 'Base Sepolia',
+            timestamp: new Date().toISOString(),
+            paymentId: result.receipt?.paymentId
+          };
+          
           // Update user data with payment info for persistence across sessions
           const updatedUserData = {
             ...userData,
-            paymentStatus: {
-              status: 'paid',
-              amount: paymentAmount,
-              currency: 'USDC',
-              transactionId: result.receipt?.transactionHash,
-              explorerLink: getTransactionLink(result.receipt?.transactionHash),
-              network: 'Base Sepolia',
-              timestamp: new Date().toISOString(),
-              paymentId: result.receipt?.paymentId
-            }
+            paymentStatus
           };
+          
+          // Track payment completion in Firebase
+          if (userData && userData.userID) {
+            try {
+              await trackUserJourney(userData.userID, 'payment', {
+                ...paymentStatus,
+                nftMinted: !!result.nft
+              });
+            } catch (error) {
+              console.error("Error tracking payment completion:", error);
+            }
+          }
           
           // Store updated user data
           localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));
@@ -1640,7 +1674,11 @@ const Payment = () => {
                   {/* Dashboard Button */}
                   <button 
                     className="dashboard-button"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => {
+                      // Use user ID from URL first, then from userData, or just go to dashboard
+                      const userId = userIdFromUrl || (userData && userData.userID);
+                      navigate(userId ? `/dashboard?id=${userId}` : '/dashboard');
+                    }}
                     style={{ 
                       width: '100%',
                       padding: '16px',
@@ -1787,7 +1825,7 @@ const Payment = () => {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M5 15H4C3.46957 15 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+              </svg>
               </span>
             </span>
             </div>
