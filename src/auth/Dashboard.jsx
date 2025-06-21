@@ -4,6 +4,7 @@ import { shortenAddress } from '../utils/coinbaseAuthUtils';
 import { getDashboardData, trackUserJourney, storeDIDDocument, storeVerificationStatus, updateUserSettings } from '../utils/firebaseConfig';
 import DIDCredentialCard from '../components/DIDCredentialCard';
 import StatsCard, { StatsIcons } from '../components/StatsCard';
+import Logo from '../assets/Logo.png';
 import '../styles/Dashboard.css';
 import '../styles/Dashboard-modern.css';
 import '../styles/chain-indicators.css';
@@ -361,10 +362,9 @@ const Dashboard = () => {
     new Date().toLocaleString();
   
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-sidebar">
+    <div className="dashboard-container">      <div className="dashboard-sidebar">
         <div className="dashboard-logo">
-          <img src="/src/assets/Logo.png" alt="Zybl Logo" />
+          <img src={Logo} alt="Zybl Logo" />
           <span>Zybl Passport</span>
         </div>
         
