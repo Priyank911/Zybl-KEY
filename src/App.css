@@ -6,6 +6,36 @@
   scroll-behavior: smooth;
 }
 
+/* Global scrollbar hiding for all elements */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Ensure specific scrollable elements also have hidden scrollbars */
+.main-container,
+.content-container,
+.navbar,
+.hero-section,
+.about-section,
+.cta-section {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.main-container::-webkit-scrollbar,
+.content-container::-webkit-scrollbar,
+.navbar::-webkit-scrollbar,
+.hero-section::-webkit-scrollbar,
+.about-section::-webkit-scrollbar,
+.cta-section::-webkit-scrollbar {
+  display: none;
+}
+
 html {
   scroll-padding-top: 100px; /* Add space for fixed navbar */
 }

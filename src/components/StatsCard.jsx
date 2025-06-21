@@ -10,9 +10,6 @@ const StatsCard = ({ title, value, change, icon, color }) => {
     amber: '#F59E0B'
   };
   
-  // Determine if change is positive, negative, or neutral
-  const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-  
   return (
     <div className="stats-card" color={color || 'blue'}>
       <div className="stats-icon">
@@ -21,12 +18,6 @@ const StatsCard = ({ title, value, change, icon, color }) => {
       <div className="stats-content">
         <h3 className="stats-title">{title}</h3>
         <div className="stats-value">{value}</div>
-        {change !== undefined && (
-          <div className={`stats-change ${changeType}`}>
-            {changeType === 'positive' && '+'}
-            {Math.abs(change)}%
-          </div>
-        )}
       </div>
     </div>
   );

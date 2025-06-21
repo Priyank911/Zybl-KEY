@@ -344,6 +344,17 @@ const Payment = () => {
             setRevenueSplit(result.receipt.splits);
           }
           
+          // Import DID utilities and generate a DID for the user
+          const { generateDID } = await import('../utils/didUtils');
+          
+          // Generate a DID using the user's wallet address and payment info
+          const didDocument = generateDID(userData.address, {
+            timestamp: new Date().toISOString(),
+            verificationScore: userData.verificationStatus?.score || 95,
+            network: 'Base Sepolia',
+            entropy: result.receipt?.transactionHash || Date.now().toString()
+          });
+          
           // Create payment status data
           const paymentStatus = {
             status: 'paid',
@@ -356,18 +367,21 @@ const Payment = () => {
             paymentId: result.receipt?.paymentId
           };
           
-          // Update user data with payment info for persistence across sessions
+          // Update user data with payment info and DID for persistence across sessions
           const updatedUserData = {
             ...userData,
-            paymentStatus
+            paymentStatus,
+            didDocument  // Store the DID document in the user data
           };
           
-          // Track payment completion in Firebase
+          // Track payment completion and DID creation in Firebase
           if (userData && userData.userID) {
             try {
               await trackUserJourney(userData.userID, 'payment', {
                 ...paymentStatus,
-                nftMinted: !!result.nft
+                nftMinted: !!result.nft,
+                didCreated: true,
+                didId: didDocument.id
               });
             } catch (error) {
               console.error("Error tracking payment completion:", error);
